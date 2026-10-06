@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
-import 'widgets/empty_view.dart';
+import 'providers/auth_provider.dart';
+import 'screens/shared/auth_gate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,13 +18,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Task Tracking App',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Task Tracking App')),
-        body: const EmptyView(message: 'Firebase connected'),
+    return ChangeNotifierProvider(
+      create: (_) => AuthProvider(),
+      child: MaterialApp(
+        title: 'Task Tracking App',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        home: const AuthGate(),
       ),
     );
   }
