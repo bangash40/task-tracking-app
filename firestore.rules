@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.role == 'intern';
+      allow update: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.role == resource.data.role;
+      allow delete: if false;
+    }
+
+    match /tasks/{taskId} {
+      allow read: if isAdmin() ||
+        (signedIn() && resource.data.assignedTo == request.auth.uid);
+
+      allow create: if isAdmin() ||
+        (signedIn()
+          && request.resource.data.assignedTo == request.auth.uid
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.createdByRole == 'intern');
+
+      allow update: if isAdmin() ||
+        (signedIn() && resource.data.assignedTo == request.auth.uid && (
+          // self-created: may edit, but not reassign or change ownership
+          (resource.data.createdByRole == 'intern'
+            && request.resource.data.assignedTo == resource.data.assignedTo
+            && request.resource.data.createdBy == resource.data.createdBy
+            && request.resource.data.createdByRole == 'intern')
+          ||
+          // admin-assigned: status fields only
+          (resource.data.createdByRole == 'admin'
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['status', 'updatedAt', 'completedAt']))
+        ));
+
+      allow delete: if isAdmin() ||
+        (signedIn() && resource.data.createdBy == request.auth.uid
+          && resource.data.createdByRole == 'intern');
+    }
+  }
+}
