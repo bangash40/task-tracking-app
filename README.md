@@ -15,6 +15,11 @@ A Flutter task management app for Internee.pk interns and admins. Interns create
 - Step 3: App theme, constants (collections, roles, task statuses) and shared loading, empty and error widgets.
 - Step 4: `UserModel`, `TaskModel` and `ReportModel` with Firestore mapping and report calculations (unit tested).
 - Step 5: Email and password authentication (register, login, logout) with `AuthService`, `UserService` and `AuthProvider`. New accounts get a `users` document with the `intern` role. Requires Email/Password sign-in to be enabled in the Firebase console.
+- Step 6: Auth gate with role-based navigation. Interns see My Tasks and My Progress; admins see All Tasks, Interns and Summary, each with bottom navigation and a logout action. The tab screens are placeholders until later steps.
+
+## Creating an admin
+
+Register normally in the app, then open the Firebase console, go to Firestore Database, open the `users` document for that account and change `role` from `intern` to `admin`. The app switches to the admin side automatically.
 
 ## Getting started
 
