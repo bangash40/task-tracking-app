@@ -6,6 +6,7 @@ import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'screens/shared/auth_gate.dart';
+import 'services/task_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        Provider(create: (_) => TaskService()),
+      ],
       child: MaterialApp(
         title: 'Task Tracking App',
         debugShowCheckedModeBanner: false,

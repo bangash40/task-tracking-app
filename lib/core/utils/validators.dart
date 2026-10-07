@@ -9,6 +9,19 @@ class Validators {
     return null;
   }
 
+  static String? taskTitle(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Title is required';
+    if (value.trim().length > 100) return 'Title must be 100 characters or less';
+    return null;
+  }
+
+  static String? description(String? value) {
+    if (value != null && value.length > 500) {
+      return 'Description must be 500 characters or less';
+    }
+    return null;
+  }
+
   static String? email(String? value) {
     if (value == null || value.trim().isEmpty) return 'Email is required';
     if (!_emailPattern.hasMatch(value.trim())) return 'Enter a valid email';
