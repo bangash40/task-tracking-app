@@ -1,5 +1,5 @@
 name: task_tracking_app
-description: "A new Flutter project."
+description: "Task tracking app for Internee.pk interns and admins."
 publish_to: 'none'
 version: 0.1.0+1
 

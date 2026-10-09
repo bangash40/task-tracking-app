@@ -1,36 +1,73 @@
 # Task Tracking App
 
-A Flutter task management app for Internee.pk interns and admins. Interns create and track their tasks and see tasks assigned to them. Admins assign tasks, monitor completion in real time and review intern performance.
+A Flutter task management app for Internee.pk interns and admins. Interns create and track their own tasks and see tasks assigned to them. Admins assign tasks, monitor completion in real time and review each intern's performance.
+
+## Features
+
+**Everyone**
+- Register and log in with email and password; stay logged in until you log out.
+- Routed to the intern or admin side based on your role.
+
+**Interns**
+- Create, edit and delete their own tasks (title, description, due date).
+- See self-created and admin-assigned tasks in one list that updates in real time.
+- Filter by status (All, To Do, In Progress, Completed); overdue and admin-assigned tasks are clearly marked.
+- Open a task to see its details and update its status. Admin-assigned tasks can only have their status changed.
+- My Progress report: total tasks, count per status, completion rate, overdue count and on-time completion rate.
+
+**Admins**
+- See every task across all interns in real time, filtered by intern and status.
+- View the list of interns, assign tasks to them, and edit or delete the tasks they assigned.
+- Open any intern's performance view: the same report as the intern's plus their tasks.
+- Overall summary: total interns, total tasks, count per status, overall completion rate, overdue count, and interns ranked by completion rate.
 
 ## Tech stack
 
-- Flutter (Dart)
-- Firebase Authentication and Cloud Firestore (Firebase core connected; Auth and Firestore to be added)
-- Provider for state management
+- Flutter (Dart), Provider for state management
+- Firebase Authentication (email/password)
+- Cloud Firestore with real-time snapshots
+- `intl` for date formatting
 
-## Status
-
-- Step 1: Flutter project created, folder structure in place, secrets and docs excluded from git.
-- Step 2: Firebase project connected (`firebase_core`) and Firebase initialized in `main.dart`.
-- Step 3: App theme, constants (collections, roles, task statuses) and shared loading, empty and error widgets.
-- Step 4: `UserModel`, `TaskModel` and `ReportModel` with Firestore mapping and report calculations (unit tested).
-- Step 5: Email and password authentication (register, login, logout) with `AuthService`, `UserService` and `AuthProvider`. New accounts get a `users` document with the `intern` role. Requires Email/Password sign-in to be enabled in the Firebase console.
-- Step 6: Auth gate with role-based navigation. Interns see My Tasks and My Progress; admins see All Tasks, Interns and Summary, each with bottom navigation and a logout action. The tab screens are placeholders until later steps.
-- Step 7: Firestore security rules (`firestore.rules`). Interns can only read and write their own tasks and can only change the status of admin-assigned tasks; admins can access everything.
-- Step 8: Interns can create tasks (title, description, due date) with validation and a date picker, and edit or delete tasks they created themselves. The task list is basic until the next step.
-- Step 9: Real-time My Tasks list for interns with a status filter (All, To Do, In Progress, Completed), status chips, and Overdue and Assigned by admin badges. Loading, empty and error states are handled.
-- Step 10: Task Details screen with live updates and who assigned the task, plus a status control (To Do, In Progress, Completed). `completedAt` is set when a task is completed and cleared if it is moved back. Interns can edit or delete only tasks they created.
-- Step 11: Admins see a live list of interns, open an intern to see their tasks, and assign tasks (title, description, due date). Admins can edit and delete the tasks they assigned. The add/edit form is shared between interns and admins.
-- Step 12: Admin All Tasks screen with a real-time list of every intern's tasks, filters by intern and status, and task details on tap.
-- Step 13: Intern My Progress screen with a live report: total tasks, count per status, completion rate, overdue count and on-time completion rate, shown with built-in progress bars and stat tiles.
-- Step 14: Admin Intern Performance screen (the same report plus the intern's tasks) and an Overall Summary with total interns, task counts, completion rate, overdue count and interns ranked by completion rate. All figures update in real time.
-
-## Firestore security rules
-
-The rules live in `firestore.rules`. To deploy them:
+## Project structure
 
 ```
-firebase login
+lib/
+  core/        theme, constants (collections, roles, statuses), utils (dates, validators)
+  models/      UserModel, TaskModel, ReportModel
+  services/    AuthService, UserService, TaskService
+  providers/   AuthProvider
+  screens/     auth, intern, admin, shared
+  widgets/     task card, status chip, report view, loading/empty/error views
+firestore.rules
+test/
+```
+
+## Getting started
+
+Requirements: Flutter SDK, an Android device or emulator, and a Firebase project.
+
+```
+flutter pub get
+flutter devices
+flutter run --debug -d <device_id>
+```
+
+The app will not run until the Firebase configuration files exist (see below).
+
+## Firebase setup
+
+Firebase configuration files are not committed (`lib/firebase_options.dart`, `android/app/google-services.json`). To create them:
+
+1. In the Firebase console, create a project, enable **Authentication > Email/Password**, and create a **Firestore** database.
+2. Install the Firebase CLI and log in: `firebase login`
+3. Install FlutterFire: `dart pub global activate flutterfire_cli`
+4. From the project root run `flutterfire configure` and select your project. This generates both files.
+
+### Security rules
+
+The rules live in `firestore.rules`. Interns can only read and write their own tasks and can only change the status of admin-assigned tasks; admins can access everything. To deploy them:
+
+```
 firebase deploy --only firestore:rules --project <your-project-id>
 ```
 
@@ -42,22 +79,18 @@ This needs a local `firebase.json` that points at the rules file (it is gitignor
 
 Alternatively, paste the contents of `firestore.rules` into Firestore Database > Rules in the Firebase console and publish.
 
-## Creating an admin
+### Creating an admin
 
-Register normally in the app, then open the Firebase console, go to Firestore Database, open the `users` document for that account and change `role` from `intern` to `admin`. The app switches to the admin side automatically.
+There is no public admin sign-up. Register normally in the app, then open the Firebase console, go to Firestore Database, open that account's document in `users` and change `role` from `intern` to `admin`. The app switches to the admin side automatically.
 
-## Getting started
+## Tests
 
 ```
-flutter pub get
-flutter devices
-flutter run --debug -d <device_id>
+flutter test
 ```
 
-## Firebase setup
+Covers the report calculations and the form validators.
 
-Firebase configuration files (`google-services.json`, `firebase_options.dart`) are not committed. To regenerate them:
+## Secrets
 
-1. Install the Firebase CLI and log in: `firebase login`
-2. Install FlutterFire: `dart pub global activate flutterfire_cli`
-3. From the project root run `flutterfire configure` and select the Firebase project. This generates `lib/firebase_options.dart` and `android/app/google-services.json`.
+`docs/`, Firebase configuration files, `firebase.json`, `.firebaserc`, environment files and signing keys are listed in `.gitignore` and must never be committed. Run `git status` before every commit to confirm none of them are staged.

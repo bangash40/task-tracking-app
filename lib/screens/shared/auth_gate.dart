@@ -31,7 +31,17 @@ class AuthGate extends StatelessWidget {
           body: ErrorView(message: auth.error!, onRetry: auth.logout),
         );
       }
-      return const Scaffold(body: LoadingView(message: 'Loading your profile'));
+      // Offer a way out in case the profile document is missing or slow.
+      return Scaffold(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const LoadingView(message: 'Loading your profile'),
+            const SizedBox(height: 24),
+            TextButton(onPressed: auth.logout, child: const Text('Log out')),
+          ],
+        ),
+      );
     }
 
     return profile.isAdmin
