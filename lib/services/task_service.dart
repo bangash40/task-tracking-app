@@ -21,6 +21,15 @@ class TaskService {
     });
   }
 
+  /// Live list of every task (admin only), sorted by due date.
+  Stream<List<TaskModel>> watchAllTasks() {
+    return _tasks.snapshots().map((snap) {
+      final tasks = snap.docs.map(TaskModel.fromDoc).toList();
+      tasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+      return tasks;
+    });
+  }
+
   Future<void> createTask(TaskModel task) async {
     await _tasks.add(task.toCreateMap());
   }

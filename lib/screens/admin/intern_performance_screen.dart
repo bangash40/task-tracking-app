@@ -3,14 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../models/task_model.dart';
 import '../../models/user_model.dart';
-import '../../providers/auth_provider.dart';
 import '../../services/task_service.dart';
 import '../../widgets/empty_view.dart';
 import '../../widgets/error_view.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/task_card.dart';
-import '../shared/task_details_screen.dart';
 import '../shared/task_form_screen.dart';
+import 'open_task.dart';
 
 /// One intern's tasks, with a button to assign a new task to them.
 /// Performance metrics are added to this screen in a later step.
@@ -35,25 +34,6 @@ class _InternPerformanceScreenState extends State<InternPerformanceScreen> {
 
   Stream<List<TaskModel>> _openStream() =>
       context.read<TaskService>().watchTasksForIntern(widget.intern.uid);
-
-  void _openTask(TaskModel task) {
-    final adminUid = context.read<AuthProvider>().profile!.uid;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => TaskDetailsScreen(
-          taskId: task.id,
-          // Admins edit and delete only the tasks they assigned.
-          onEdit: task.createdBy == adminUid
-              ? (ctx, current) => Navigator.of(ctx).push(
-                    MaterialPageRoute(
-                      builder: (_) => TaskFormScreen(task: current),
-                    ),
-                  )
-              : null,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +63,7 @@ class _InternPerformanceScreenState extends State<InternPerformanceScreen> {
             itemCount: tasks.length,
             itemBuilder: (context, i) => TaskCard(
               task: tasks[i],
-              onTap: () => _openTask(tasks[i]),
+              onTap: () => openTaskAsAdmin(context, tasks[i]),
             ),
           );
         },
