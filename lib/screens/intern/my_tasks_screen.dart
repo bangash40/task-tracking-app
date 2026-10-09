@@ -10,6 +10,7 @@ import '../../widgets/error_view.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/status_filter_bar.dart';
 import '../../widgets/task_card.dart';
+import '../shared/task_details_screen.dart';
 import 'task_form_screen.dart';
 
 /// The intern's real-time task list with a status filter.
@@ -36,10 +37,20 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
   }
 
   void _openTask(TaskModel task) {
-    // Admin-assigned tasks cannot be edited; their details come in a later step.
-    if (task.isAdminAssigned) return;
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => TaskFormScreen(task: task)),
+      MaterialPageRoute(
+        builder: (_) => TaskDetailsScreen(
+          taskId: task.id,
+          // Admin-assigned tasks can only have their status changed.
+          onEdit: task.isAdminAssigned
+              ? null
+              : (ctx, current) => Navigator.of(ctx).push(
+                    MaterialPageRoute(
+                      builder: (_) => TaskFormScreen(task: current),
+                    ),
+                  ),
+        ),
+      ),
     );
   }
 

@@ -19,6 +19,7 @@ A Flutter task management app for Internee.pk interns and admins. Interns create
 - Step 7: Firestore security rules (`firestore.rules`). Interns can only read and write their own tasks and can only change the status of admin-assigned tasks; admins can access everything.
 - Step 8: Interns can create tasks (title, description, due date) with validation and a date picker, and edit or delete tasks they created themselves. The task list is basic until the next step.
 - Step 9: Real-time My Tasks list for interns with a status filter (All, To Do, In Progress, Completed), status chips, and Overdue and Assigned by admin badges. Loading, empty and error states are handled.
+- Step 10: Task Details screen with live updates and who assigned the task, plus a status control (To Do, In Progress, Completed). `completedAt` is set when a task is completed and cleared if it is moved back. Interns can edit or delete only tasks they created.
 
 ## Firestore security rules
 
