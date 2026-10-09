@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/report_model.dart';
 import '../../models/task_model.dart';
 import '../../models/user_model.dart';
 import '../../services/task_service.dart';
 import '../../widgets/empty_view.dart';
 import '../../widgets/error_view.dart';
 import '../../widgets/loading_view.dart';
+import '../../widgets/report_view.dart';
 import '../../widgets/task_card.dart';
 import '../shared/task_form_screen.dart';
 import 'open_task.dart';
 
-/// One intern's tasks, with a button to assign a new task to them.
-/// Performance metrics are added to this screen in a later step.
+/// One intern's performance: the progress report, their tasks, and a button
+/// to assign a new task to them. Updates in real time.
 class InternPerformanceScreen extends StatefulWidget {
   final UserModel intern;
 
@@ -58,13 +60,26 @@ class _InternPerformanceScreenState extends State<InternPerformanceScreen> {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.only(top: 8, bottom: 88),
-            itemCount: tasks.length,
-            itemBuilder: (context, i) => TaskCard(
-              task: tasks[i],
-              onTap: () => openTaskAsAdmin(context, tasks[i]),
-            ),
+          return ListView(
+            padding: const EdgeInsets.only(top: 16, bottom: 88),
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ReportView(report: ReportModel.fromTasks(tasks)),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
+                child: Text(
+                  'Tasks',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              for (final task in tasks)
+                TaskCard(
+                  task: task,
+                  onTap: () => openTaskAsAdmin(context, task),
+                ),
+            ],
           );
         },
       ),

@@ -23,6 +23,7 @@ A Flutter task management app for Internee.pk interns and admins. Interns create
 - Step 11: Admins see a live list of interns, open an intern to see their tasks, and assign tasks (title, description, due date). Admins can edit and delete the tasks they assigned. The add/edit form is shared between interns and admins.
 - Step 12: Admin All Tasks screen with a real-time list of every intern's tasks, filters by intern and status, and task details on tap.
 - Step 13: Intern My Progress screen with a live report: total tasks, count per status, completion rate, overdue count and on-time completion rate, shown with built-in progress bars and stat tiles.
+- Step 14: Admin Intern Performance screen (the same report plus the intern's tasks) and an Overall Summary with total interns, task counts, completion rate, overdue count and interns ranked by completion rate. All figures update in real time.
 
 ## Firestore security rules
 
