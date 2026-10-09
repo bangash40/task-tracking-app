@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'screens/shared/auth_gate.dart';
 import 'services/task_service.dart';
+import 'services/user_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,7 @@ class MainApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        Provider(create: (_) => UserService()),
         Provider(create: (_) => TaskService()),
       ],
       child: MaterialApp(

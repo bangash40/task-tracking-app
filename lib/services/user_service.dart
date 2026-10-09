@@ -16,6 +16,21 @@ class UserService {
     return _users.doc(user.uid).set(user.toMap());
   }
 
+  /// Live list of all interns, sorted by name. Sorting is done on the client
+  /// to avoid a composite index.
+  Stream<List<UserModel>> watchInterns() {
+    return _users
+        .where('role', isEqualTo: UserRoles.intern)
+        .snapshots()
+        .map((snap) {
+      final interns = snap.docs.map(UserModel.fromDoc).toList();
+      interns.sort(
+        (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+      );
+      return interns;
+    });
+  }
+
   /// Emits the user's profile, or null while the document does not exist yet.
   Stream<UserModel?> watchUser(String uid) {
     return _users.doc(uid).snapshots().map(

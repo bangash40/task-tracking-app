@@ -5,14 +5,17 @@ import '../../core/constants/app_constants.dart';
 import '../../core/utils/date_utils.dart';
 import '../../core/utils/validators.dart';
 import '../../models/task_model.dart';
+import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/task_service.dart';
 
-/// Add a new task, or edit one the intern created themselves.
+/// Add or edit a task. Interns add tasks for themselves; admins pass the
+/// [assignee] to assign a task to an intern.
 class TaskFormScreen extends StatefulWidget {
   final TaskModel? task;
+  final UserModel? assignee;
 
-  const TaskFormScreen({super.key, this.task});
+  const TaskFormScreen({super.key, this.task, this.assignee});
 
   @override
   State<TaskFormScreen> createState() => _TaskFormScreenState();
@@ -26,6 +29,13 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   bool _saving = false;
 
   bool get _isEditing => widget.task != null;
+
+  bool get _isAdmin => context.read<AuthProvider>().profile?.isAdmin ?? false;
+
+  /// Name of the intern the task is for, shown to admins.
+  String? get _assigneeName => _isEditing && _isAdmin
+      ? widget.task!.assignedToName
+      : widget.assignee?.name;
 
   @override
   void initState() {
@@ -66,6 +76,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     final profile = context.read<AuthProvider>().profile;
     if (profile == null) return;
 
+    // Admins create tasks for an intern; interns create tasks for themselves.
+    final owner = profile.isAdmin ? widget.assignee : profile;
+    if (!_isEditing && owner == null) return;
+
     final service = context.read<TaskService>();
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
@@ -86,16 +100,23 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             title: _titleController.text.trim(),
             description: _descriptionController.text.trim(),
             dueDate: _dueDate!,
-            assignedTo: profile.uid,
-            assignedToName: profile.name,
+            assignedTo: owner!.uid,
+            assignedToName: owner.name,
             createdBy: profile.uid,
-            createdByRole: UserRoles.intern,
+            createdByRole:
+                profile.isAdmin ? UserRoles.admin : UserRoles.intern,
           ),
         );
       }
       navigator.pop();
       messenger.showSnackBar(
-        SnackBar(content: Text(_isEditing ? 'Task updated' : 'Task created')),
+        SnackBar(
+          content: Text(
+            _isEditing
+                ? 'Task updated'
+                : (profile.isAdmin ? 'Task assigned' : 'Task created'),
+          ),
+        ),
       );
     } catch (_) {
       if (!mounted) return;
@@ -148,7 +169,11 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Task' : 'Add Task'),
+        title: Text(
+          _isAdmin
+              ? (_isEditing ? 'Edit Assigned Task' : 'Assign Task')
+              : (_isEditing ? 'Edit Task' : 'Add Task'),
+        ),
         actions: [
           if (_isEditing)
             IconButton(
@@ -166,6 +191,16 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (_isAdmin && _assigneeName != null) ...[
+                  InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Assigned to',
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
+                    child: Text(_assigneeName!),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 TextFormField(
                   controller: _titleController,
                   textCapitalization: TextCapitalization.sentences,
@@ -215,7 +250,11 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : Text(_isEditing ? 'Save Changes' : 'Create Task'),
+                      : Text(
+                          _isEditing
+                              ? 'Save Changes'
+                              : (_isAdmin ? 'Assign Task' : 'Create Task'),
+                        ),
                 ),
               ],
             ),

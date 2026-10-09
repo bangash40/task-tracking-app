@@ -11,7 +11,7 @@ import '../../widgets/loading_view.dart';
 import '../../widgets/status_filter_bar.dart';
 import '../../widgets/task_card.dart';
 import '../shared/task_details_screen.dart';
-import 'task_form_screen.dart';
+import '../shared/task_form_screen.dart';
 
 /// The intern's real-time task list with a status filter.
 class MyTasksScreen extends StatefulWidget {
